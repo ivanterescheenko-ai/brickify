@@ -80,7 +80,11 @@ export default function BomTable({ blocks, hasTavily }: BomTableProps) {
           {allComponents.map((comp, i) => {
             const price = comp.sourcing?.found ? comp.sourcing.price_usd : comp.estimated_price_usd
             const source = comp.sourcing?.source
-            const sourceLabel = source === 'octopart' ? 'Octopart' : source === 'tavily' ? 'Web' : ''
+            const sourceLabels: Record<string, string> = {
+              octopart: 'Octopart', tavily: 'Web', amazon: 'Amazon',
+              aliexpress: 'AliExpress', lcsc: 'LCSC', szlcsc: 'SZLCSC',
+            }
+            const sourceLabel = source ? (sourceLabels[source] || '') : ''
             return (
               <tr key={i} style={{ animationDelay: `${i * 40}ms` }}>
                 <td>
@@ -100,7 +104,11 @@ export default function BomTable({ blocks, hasTavily }: BomTableProps) {
                   {sourceLabel && (
                     <div style={{
                       fontSize: 9, fontFamily: 'var(--font-mono)',
-                      color: source === 'octopart' ? 'var(--accent)' : 'var(--text-tertiary)',
+                      color: source === 'octopart' ? 'var(--accent)'
+                        : source === 'amazon' ? 'var(--success)'
+                        : source === 'aliexpress' ? 'var(--warning)'
+                        : source === 'lcsc' || source === 'szlcsc' ? '#ff6600'
+                        : 'var(--text-tertiary)',
                       marginTop: 2,
                     }}>
                       via {sourceLabel}
