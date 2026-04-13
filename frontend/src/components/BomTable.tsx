@@ -1,4 +1,4 @@
-import { ExternalLink, Copy } from 'lucide-react'
+import { ExternalLink, Copy, Download } from 'lucide-react'
 import type { BuildResult } from '../api/client'
 
 interface BomTableProps {
@@ -23,6 +23,24 @@ export default function BomTable({ blocks, hasTavily }: BomTableProps) {
     navigator.clipboard.writeText(lines.join('\n'))
   }
 
+  const downloadCsv = () => {
+    const rows = [['Компонент', 'Спецификация', 'Кол-во', 'Цена USD', 'Магазин', 'Ссылка']]
+    allComponents.forEach((c) => {
+      const price = c.sourcing?.found ? c.sourcing.price_usd : c.estimated_price_usd
+      rows.push([
+        c.name, c.spec || '', String(c.quantity), String(price),
+        c.sourcing?.shop_name || '', c.sourcing?.shop_url || '',
+      ])
+    })
+    rows.push(['ИТОГО', '', String(allComponents.reduce((s, c) => s + c.quantity, 0)), String(totalPrice.toFixed(2)), '', ''])
+    const csv = rows.map((r) => r.map((v) => `"${v}"`).join(',')).join('\n')
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url; a.download = 'brickify-bom.csv'; a.click()
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
       <div style={{
@@ -30,9 +48,14 @@ export default function BomTable({ blocks, hasTavily }: BomTableProps) {
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
       }}>
         <div className="text-label">Bill of Materials</div>
-        <button className="btn btn-ghost" onClick={copyBom} style={{ gap: 4 }}>
-          <Copy size={12} /> Скопировать
-        </button>
+        <div style={{ display: 'flex', gap: 4 }}>
+          <button className="btn btn-ghost" onClick={downloadCsv} style={{ gap: 4 }}>
+            <Download size={12} /> CSV
+          </button>
+          <button className="btn btn-ghost" onClick={copyBom} style={{ gap: 4 }}>
+            <Copy size={12} /> Скопировать
+          </button>
+        </div>
       </div>
 
       {!hasTavily && (

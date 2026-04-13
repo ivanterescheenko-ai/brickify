@@ -1,29 +1,19 @@
 import { Loader2 } from 'lucide-react'
 
-const PHASES = [
-  'Анализирую устройство...',
-  'Разбиваю на блоки...',
-  'Ищу компоненты...',
-  'Считаю бюджет...',
-  'Пишу инструкцию...',
-]
-
 interface SkeletonLoadingProps {
-  startTime: number
+  phase: string
 }
 
-export default function SkeletonLoading({ startTime }: SkeletonLoadingProps) {
-  const elapsed = Math.floor((Date.now() - startTime) / 1000)
-  const phaseIndex = Math.min(Math.floor(elapsed / 8), PHASES.length - 1)
-
+export default function SkeletonLoading({ phase }: SkeletonLoadingProps) {
   return (
     <div style={{ animation: 'fadeIn 300ms ease' }}>
       <div style={{
         display: 'flex', alignItems: 'center', gap: 10,
-        color: 'var(--text-secondary)', fontSize: 14, marginBottom: 'var(--space-6)',
+        color: 'var(--accent)', fontSize: 14, marginBottom: 'var(--space-6)',
+        fontFamily: 'var(--font-mono)',
       }}>
         <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
-        {PHASES[phaseIndex]}
+        {phase || 'Обработка...'}
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>

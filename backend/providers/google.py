@@ -1,12 +1,14 @@
-import google.generativeai as genai
+import asyncio
+
+from google import genai
+from google.genai.types import GenerateContentConfig, Content, Part
 
 from .base import BaseLLMProvider, LLMResponse, Message
 
 
 class GoogleProvider(BaseLLMProvider):
     def __init__(self, api_key: str, model: str = "gemini-2.5-flash"):
-        genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel(model)
+        self.client = genai.Client(api_key=api_key)
         self.model_name = model
         self._key = api_key
 
@@ -16,28 +18,27 @@ class GoogleProvider(BaseLLMProvider):
         temperature: float = 0.3,
         max_tokens: int = 4096,
     ) -> LLMResponse:
-        history = []
-        prompt = ""
+        system_instruction = None
+        contents = []
+
         for m in messages:
             if m.role == "system":
-                prompt = m.content + "\n\n"
-            elif m.role == "user":
-                history.append({"role": "user", "parts": [m.content]})
-            elif m.role == "assistant":
-                history.append({"role": "model", "parts": [m.content]})
+                system_instruction = m.content
+            else:
+                role = "model" if m.role == "assistant" else "user"
+                contents.append(Content(role=role, parts=[Part(text=m.content)]))
 
-        # Если есть system prompt, добавляем к первому user сообщению
-        if prompt and history:
-            history[0]["parts"][0] = prompt + history[0]["parts"][0]
+        config = GenerateContentConfig(
+            temperature=temperature,
+            max_output_tokens=max_tokens,
+            system_instruction=system_instruction,
+        )
 
-        last_user = history.pop() if history else {"parts": [prompt]}
-        chat = self.model.start_chat(history=history)
-        resp = await chat.send_message_async(
-            last_user["parts"][0],
-            generation_config={
-                "temperature": temperature,
-                "max_output_tokens": max_tokens,
-            },
+        resp = await asyncio.to_thread(
+            self.client.models.generate_content,
+            model=self.model_name,
+            contents=contents,
+            config=config,
         )
         return LLMResponse(
             content=resp.text, model=self.model_name, provider="google"

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { CheckCircle, AlertTriangle, Loader2 } from 'lucide-react'
 import { useSettings } from '../store/settings'
-import { checkHealth } from '../api/client'
+import { testConnection } from '../api/client'
 
 const PROVIDERS = [
   { id: 'anthropic', name: 'Claude', org: 'Anthropic', placeholder: 'sk-ant-...', defaultModel: 'claude-sonnet-4-20250514' },
@@ -18,6 +18,7 @@ type ConnectionStatus = 'idle' | 'checking' | 'ok' | 'error'
 export default function Settings() {
   const { provider, apiKey, model, baseUrl, tavilyKey, setSettings } = useSettings()
   const [status, setStatus] = useState<ConnectionStatus>('idle')
+  const [statusDetail, setStatusDetail] = useState('')
 
   const selectedProvider = PROVIDERS.find((p) => p.id === provider)
   const needsKey = selectedProvider ? !('noKey' in selectedProvider && selectedProvider.noKey) : true
@@ -31,12 +32,20 @@ export default function Settings() {
       baseUrl: id === 'ollama' ? 'http://localhost:11434' : id === 'lmstudio' ? 'http://localhost:1234' : '',
     })
     setStatus('idle')
+    setStatusDetail('')
   }
 
   const handleCheck = async () => {
     setStatus('checking')
-    const ok = await checkHealth()
-    setStatus(ok ? 'ok' : 'error')
+    setStatusDetail('')
+    const result = await testConnection({ provider, api_key: apiKey, model, base_url: baseUrl })
+    if (result.ok) {
+      setStatus('ok')
+      setStatusDetail(result.model ? `Модель: ${result.model}` : '')
+    } else {
+      setStatus('error')
+      setStatusDetail(result.error || 'Неизвестная ошибка')
+    }
   }
 
   return (
@@ -106,20 +115,34 @@ export default function Settings() {
             </div>
           )}
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-            <button className="btn btn-secondary" onClick={handleCheck} disabled={status === 'checking'}>
-              {status === 'checking' && <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} />}
-              Проверить подключение
-            </button>
-            {status === 'ok' && (
-              <span style={{ color: 'var(--success)', display: 'flex', alignItems: 'center', gap: 4, fontSize: 13 }}>
-                <CheckCircle size={14} /> Работает
-              </span>
-            )}
-            {status === 'error' && (
-              <span style={{ color: 'var(--danger)', display: 'flex', alignItems: 'center', gap: 4, fontSize: 13 }}>
-                <AlertTriangle size={14} /> Бэкенд недоступен
-              </span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+              <button className="btn btn-primary" onClick={handleCheck} disabled={status === 'checking'}>
+                {status === 'checking' && <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} />}
+                Проверить подключение
+              </button>
+              {status === 'ok' && (
+                <span style={{ color: 'var(--success)', display: 'flex', alignItems: 'center', gap: 4, fontSize: 13 }}>
+                  <CheckCircle size={14} /> Работает
+                </span>
+              )}
+              {status === 'error' && (
+                <span style={{ color: 'var(--danger)', display: 'flex', alignItems: 'center', gap: 4, fontSize: 13 }}>
+                  <AlertTriangle size={14} /> Ошибка
+                </span>
+              )}
+            </div>
+            {statusDetail && (
+              <div style={{
+                fontSize: 'var(--text-xs)',
+                fontFamily: 'var(--font-mono)',
+                color: status === 'ok' ? 'var(--text-secondary)' : 'var(--danger)',
+                padding: 'var(--space-2) var(--space-3)',
+                background: status === 'ok' ? 'var(--success-dim)' : 'var(--danger-dim)',
+                borderRadius: 'var(--radius-sm)',
+              }}>
+                {statusDetail}
+              </div>
             )}
           </div>
         </section>

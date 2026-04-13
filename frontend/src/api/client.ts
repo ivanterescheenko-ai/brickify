@@ -52,6 +52,76 @@ export interface BuildResult {
   }
 }
 
+export type SSEPhase = 'decomposing' | 'researching' | 'writing' | 'done' | 'error'
+
+export interface SSECallbacks {
+  onPhase: (phase: SSEPhase, message: string) => void
+  onDecomposition: (data: BuildResult['decomposition']) => void
+  onGuide: (data: BuildResult['guide']) => void
+  onDone: (result: BuildResult) => void
+  onError: (error: string) => void
+}
+
+export function buildDeviceStream(params: BuildParams, callbacks: SSECallbacks): AbortController {
+  const controller = new AbortController()
+
+  fetch(`${API_BASE}/build/stream`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(params),
+    signal: controller.signal,
+  }).then(async (res) => {
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: 'Ошибка сервера' }))
+      const detail = typeof err.detail === 'string' ? err.detail : err.detail?.detail || 'Неизвестная ошибка'
+      callbacks.onError(detail)
+      return
+    }
+
+    const reader = res.body?.getReader()
+    if (!reader) { callbacks.onError('Нет потока данных'); return }
+
+    const decoder = new TextDecoder()
+    let buffer = ''
+
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+
+      buffer += decoder.decode(value, { stream: true })
+      const lines = buffer.split('\n')
+      buffer = lines.pop() || ''
+
+      let currentEvent = ''
+      for (const line of lines) {
+        if (line.startsWith('event: ')) {
+          currentEvent = line.slice(7).trim()
+        } else if (line.startsWith('data: ') && currentEvent) {
+          try {
+            const data = JSON.parse(line.slice(6))
+            switch (currentEvent) {
+              case 'phase': callbacks.onPhase(data.phase, data.message); break
+              case 'decomposition': callbacks.onDecomposition(data); break
+              case 'enriched': callbacks.onDecomposition(data); break
+              case 'guide': callbacks.onGuide(data); break
+              case 'done': callbacks.onDone(data); break
+              case 'error': callbacks.onError(data.detail || data.error); break
+            }
+          } catch { /* skip malformed JSON */ }
+          currentEvent = ''
+        }
+      }
+    }
+  }).catch((err) => {
+    if (err.name !== 'AbortError') {
+      callbacks.onError(err.message || 'Ошибка соединения')
+    }
+  })
+
+  return controller
+}
+
+/** Non-streaming fallback */
 export async function buildDevice(params: BuildParams): Promise<BuildResult> {
   const res = await fetch(`${API_BASE}/build`, {
     method: 'POST',
@@ -68,6 +138,22 @@ export async function buildDevice(params: BuildParams): Promise<BuildResult> {
   }
 
   return res.json()
+}
+
+export async function testConnection(params: {
+  provider: string; api_key: string; model: string; base_url: string
+}): Promise<{ ok: boolean; error?: string; model?: string }> {
+  try {
+    const res = await fetch(`${API_BASE}/test-connection`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(params),
+      signal: AbortSignal.timeout(20000),
+    })
+    return await res.json()
+  } catch {
+    return { ok: false, error: 'Бэкенд недоступен' }
+  }
 }
 
 export async function checkHealth(): Promise<boolean> {
