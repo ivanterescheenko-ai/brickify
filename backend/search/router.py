@@ -71,29 +71,52 @@ class SearchRouter:
     def has_sources(self) -> bool:
         return len(self._providers) > 0
 
+    def _get_provider_order(self, category: str) -> list[BaseSearchProvider]:
+        """
+        Оптимизирует порядок провайдеров по категории компонента.
+        electronic → Octopart/LCSC first (structured data)
+        mechanical/frame → Tavily/Amazon first (web search better)
+        wiring/fastener → AliExpress/LCSC first (cheapest)
+        """
+        by_name = {p.name: p for p in self._providers}
+
+        if category in ("electronic",):
+            priority = ["octopart", "lcsc", "szlcsc", "tavily", "amazon", "aliexpress"]
+        elif category in ("mechanical", "frame"):
+            priority = ["tavily", "amazon", "aliexpress", "lcsc", "octopart", "szlcsc"]
+        elif category in ("wiring", "fastener", "consumable"):
+            priority = ["aliexpress", "lcsc", "amazon", "tavily", "szlcsc", "octopart"]
+        else:
+            priority = ["octopart", "tavily", "amazon", "lcsc", "aliexpress", "szlcsc"]
+
+        ordered = [by_name[n] for n in priority if n in by_name]
+        # Add any remaining providers not in priority list
+        remaining = [p for p in self._providers if p.name not in {n for n in priority}]
+        return ordered + remaining
+
     async def search(
         self,
         component_name: str,
         spec: str,
         country: str = "global",
+        category: str = "",
     ) -> ComponentMatch:
         """
         Ищет компонент через доступные источники.
-        Сначала проверяет кэш, потом идёт по цепочке.
+        Порядок оптимизирован по категории компонента.
         """
-        # Проверяем кэш
         cached = self._cache.get(component_name, spec)
         if cached is not None:
             return cached
 
-        # Последовательно по провайдерам (fallback chain)
-        for provider in self._providers:
+        providers = self._get_provider_order(category) if category else self._providers
+
+        for provider in providers:
             result = await provider.search(component_name, spec, country)
             if result.found:
                 self._cache.set(component_name, spec, result)
                 return result
 
-        # Ничего не найдено
         not_found = ComponentMatch(found=False, source="none")
         self._cache.set(component_name, spec, not_found)
         return not_found
@@ -116,6 +139,7 @@ class SearchRouter:
                     comp.get("name", ""),
                     comp.get("spec", ""),
                     country,
+                    category=comp.get("category", ""),
                 )
 
         return await asyncio.gather(*[_search_one(c) for c in components])

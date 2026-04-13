@@ -21,19 +21,30 @@ from .utils import parse_llm_json
 
 
 EXTRACT_PROMPT = """
-From these search results, extract pricing info for component "{component_name}" ({spec}).
+You are a procurement specialist who verifies component pricing from web search results. Your job: find the most reliable price for a specific component.
 
-Search results:
+Component to find: "{component_name}"
+Specifications: {spec}
+
+Search results from the web:
 {snippets}
+
+INSTRUCTIONS:
+1. Look for the EXACT component or closest match (same specs, same category)
+2. Prefer prices from reputable shops (Amazon, DigiKey, Mouser, GetFPV, Adafruit, SparkFun) over random sites
+3. Ignore prices that seem obviously wrong (e.g., $0.01 for a motor, $500 for a resistor)
+4. If multiple prices found, pick the median — not the cheapest (cheapest is often shipping-only or wrong item)
+5. The URL must be a direct product link, not a search results page
+6. If search results are about a DIFFERENT component, respond with nulls — don't force a match
 
 Respond with ONLY JSON:
 {{
   "price_usd": 25.0,
   "shop_name": "Amazon",
-  "shop_url": "https://..."
+  "shop_url": "https://www.amazon.com/dp/..."
 }}
 
-If you can't determine a reliable price, respond:
+If no reliable match found:
 {{"price_usd": null, "shop_name": null, "shop_url": null}}
 """
 
@@ -101,7 +112,10 @@ async def _enrich_component(
     country: str,
 ) -> dict:
     """Обогащает один компонент через search router + LLM extraction."""
-    match = await router.search(comp["name"], comp.get("spec", ""), country)
+    match = await router.search(
+        comp["name"], comp.get("spec", ""), country,
+        category=comp.get("category", ""),
+    )
 
     # Структурированные источники — используем напрямую
     if match.found and match.source in ("octopart", "lcsc", "szlcsc"):
