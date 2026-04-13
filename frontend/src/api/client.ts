@@ -43,19 +43,38 @@ export interface BuildResult {
     }>
   }
   guide: {
-    steps: Array<{
-      number: number
-      title: string
-      what_to_do: string
-      why: string
-      tip: string
-      tools_needed: string[]
-      time_minutes: number
+    // New format: phases with steps
+    phases?: Array<{
+      name: string
+      description: string
+      steps: Array<GuideStep>
     }>
+    // Legacy format: flat steps (backward compat)
+    steps?: Array<GuideStep>
     total_time_hours: number
     tools_list: string[]
-    warnings: string[]
+    materials_list?: string[]
+    safety_warnings?: string[]
+    warnings?: string[]
+    before_you_start?: string
+    after_completion?: string
   }
+}
+
+export interface GuideStep {
+  number: number
+  title: string
+  what_to_do: string
+  why?: string
+  difficulty?: 'easy' | 'moderate' | 'hard'
+  components_used?: string[]
+  tools_needed?: string[]
+  wiring?: string
+  tip?: string
+  common_mistake?: string
+  verification?: string[]
+  time_minutes: number
+  photo_description?: string
 }
 
 export type SSEPhase = 'decomposing' | 'researching' | 'writing' | 'done' | 'error'

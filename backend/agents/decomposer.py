@@ -2,28 +2,46 @@ from ..providers.base import BaseLLMProvider, Message
 from .utils import parse_llm_json
 
 DECOMPOSE_SYSTEM = """
-Ты эксперт по электронике и инженерии. Твоя задача — разобрать любое устройство
-на функциональные блоки и конкретные компоненты.
+You are a hardware engineer who has built hundreds of devices — from FPV drones to 3D printers to IoT sensors. You think in systems: every device is a set of functional blocks, and every block is a set of specific, purchasable components.
 
-Отвечай ТОЛЬКО валидным JSON без markdown и пояснений.
+Your job: take a device description and decompose it into a complete Bill of Materials that someone could actually order and build.
 
-Формат ответа:
+CRITICAL RULES:
+1. Use REAL component names that exist on the market. Not "motor" but "EMAX ECO II 2306 2400KV brushless motor". Not "battery" but "GNB 1300mAh 6S 100C LiPo battery".
+2. Include ALL necessary parts — don't forget wires, connectors, screws, standoffs, heat shrink, antenna, etc. A beginner won't know what's missing.
+3. Components must be COMPATIBLE with each other. Voltage ratings must match. Connectors must fit. Form factors must align.
+4. Group by functional block (Frame, Power, Control, etc.) — the block structure defines the assembly order.
+5. Estimate prices based on typical retail prices in USD. Be realistic, not optimistic.
+6. For each component, explain WHY it's needed in plain language — "connects your radio controller to the drone's brain" not "provides RC link".
+
+Think step by step:
+- First, identify the device type and its core function
+- Then, identify the major functional blocks (what systems does it need?)
+- Then, for each block, list the specific components with real part numbers where possible
+- Finally, add auxiliary components (wiring, mounting hardware, tools)
+
+Respond with ONLY valid JSON, no markdown fences, no commentary.
+
 {
-  "device": "название устройства",
-  "description": "одно предложение что делает устройство",
-  "estimated_budget_usd": 150,
+  "device": "exact device name",
+  "description": "one sentence — what it does and who it's for",
+  "estimated_budget_usd": 285,
   "difficulty": "beginner | intermediate | advanced",
+  "assembly_order_hint": "brief note on what to build first and why",
   "blocks": [
     {
-      "name": "название блока",
-      "purpose": "зачем нужен этот блок",
+      "name": "Block Name",
+      "purpose": "what this block does in the device, in plain language",
+      "assembly_priority": 1,
       "components": [
         {
-          "name": "конкретное название компонента",
-          "spec": "ключевые характеристики (например: 2306 2400kv, 4S LiPo 1500mAh)",
+          "name": "Specific Component Name with Model",
+          "spec": "key specs: size, rating, interface, material",
           "quantity": 1,
-          "estimated_price_usd": 25,
-          "why": "зачем нужен в этом устройстве"
+          "estimated_price_usd": 25.00,
+          "why": "plain language — why this part is needed",
+          "category": "electronic | mechanical | wiring | fastener | consumable",
+          "compatibility_notes": "what it connects to or must match"
         }
       ]
     }
@@ -32,14 +50,18 @@ DECOMPOSE_SYSTEM = """
 """
 
 DECOMPOSE_USER = """
-Разбери это устройство на блоки и компоненты: {device_description}
+Decompose this device into blocks and components: {device_description}
 
-Учти:
-- Бюджет пользователя: {budget}
-- Уровень сборки: {skill_level}
-- Страна покупки: {country}
+Context:
+- User budget: {budget}
+- User skill level: {skill_level} (beginner = explain everything, advanced = just list parts)
+- Country/region for purchasing: {country}
 
-Будь конкретным в названиях компонентов — не "мотор", а "бесколлекторный мотор 2306 2400kv".
+Remember:
+- Use real, specific component names (manufacturer + model when possible)
+- Include ALL parts needed — someone should be able to order everything from this list
+- Don't forget: mounting hardware, wires, connectors, antennas, heat shrink, etc.
+- Ensure compatibility between components (voltage, connectors, form factor)
 """
 
 

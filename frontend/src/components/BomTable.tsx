@@ -146,18 +146,22 @@ function generatePdfHtml(
     </tr>`
   }).join('')
 
-  const guideSteps = guide?.steps.map((s) => `
+  const allSteps = guide?.phases?.flatMap(p => p.steps) || guide?.steps || []
+  const guideSteps = allSteps.map((s) => `
     <div style="margin-bottom:24px; page-break-inside:avoid">
       <h3 style="margin:0 0 8px; font-size:16px">
         <span style="display:inline-block; width:28px; height:28px; border-radius:50%; background:#3B82F6; color:white; text-align:center; line-height:28px; font-size:13px; margin-right:8px">${s.number}</span>
         ${s.title}
       </h3>
       <p style="margin:0 0 8px; color:#444; line-height:1.6">${s.what_to_do}</p>
+      ${s.wiring ? `<div style="background:#EFF6FF; border-left:3px solid #3B82F6; padding:8px 12px; border-radius:4px; font-size:13px; color:#1E40AF; margin-bottom:8px">🔌 ${s.wiring}</div>` : ''}
       ${s.tip ? `<div style="background:#FEF3C7; border-left:3px solid #F59E0B; padding:8px 12px; border-radius:4px; font-size:13px; color:#92400E; margin-bottom:8px">💡 ${s.tip}</div>` : ''}
+      ${s.common_mistake ? `<div style="background:#FEE2E2; border-left:3px solid #EF4444; padding:8px 12px; border-radius:4px; font-size:13px; color:#991B1B; margin-bottom:8px">⚠️ Common mistake: ${s.common_mistake}</div>` : ''}
+      ${s.verification?.length ? `<div style="background:#F0FDF4; border-left:3px solid #22C55E; padding:8px 12px; border-radius:4px; font-size:13px; color:#166534; margin-bottom:8px">✅ Before moving on:<br>${s.verification.map(v => `• ${v}`).join('<br>')}</div>` : ''}
       ${s.tools_needed?.length ? `<div style="font-size:12px; color:#888">Tools: ${s.tools_needed.join(', ')}</div>` : ''}
-      <div style="font-size:12px; color:#888; margin-top:4px">~${s.time_minutes} min</div>
+      <div style="font-size:12px; color:#888; margin-top:4px">~${s.time_minutes} min${s.difficulty ? ` · ${s.difficulty}` : ''}</div>
     </div>
-  `).join('') || ''
+  `).join('')
 
   return `<!DOCTYPE html>
 <html><head>
