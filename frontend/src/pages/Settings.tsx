@@ -1,16 +1,16 @@
 import { useState } from 'react'
-import { CheckCircle, AlertTriangle, Loader2 } from 'lucide-react'
+import { CheckCircle, AlertTriangle, Loader2, ExternalLink, Save } from 'lucide-react'
 import { useSettings } from '../store/settings'
 import { testConnection } from '../api/client'
 
 const PROVIDERS = [
-  { id: 'anthropic', name: 'Claude', org: 'Anthropic', placeholder: 'sk-ant-...', defaultModel: 'claude-sonnet-4-20250514' },
-  { id: 'openai', name: 'GPT-4.1', org: 'OpenAI', placeholder: 'sk-...', defaultModel: 'gpt-4.1' },
-  { id: 'google', name: 'Gemini', org: 'Google', placeholder: 'AIzaSy...', defaultModel: 'gemini-2.5-flash' },
-  { id: 'xai', name: 'Grok', org: 'xAI', placeholder: 'xai-...', defaultModel: 'grok-3' },
-  { id: 'deepseek', name: 'DeepSeek', org: 'DeepSeek', placeholder: 'sk-...', defaultModel: 'deepseek-r1' },
-  { id: 'ollama', name: 'Ollama', org: 'Local', placeholder: '', defaultModel: 'llama4-scout', noKey: true },
-  { id: 'lmstudio', name: 'LM Studio', org: 'Local', placeholder: '', defaultModel: 'local-model', noKey: true },
+  { id: 'anthropic', name: 'Claude', org: 'Anthropic', placeholder: 'sk-ant-...', defaultModel: 'claude-sonnet-4-20250514', keyUrl: 'https://console.anthropic.com/settings/keys', pricing: 'From $3/M tokens' },
+  { id: 'openai', name: 'GPT-4.1', org: 'OpenAI', placeholder: 'sk-...', defaultModel: 'gpt-4.1', keyUrl: 'https://platform.openai.com/api-keys', pricing: 'From $2/M tokens' },
+  { id: 'google', name: 'Gemini', org: 'Google', placeholder: 'AIzaSy...', defaultModel: 'gemini-2.5-flash', keyUrl: 'https://aistudio.google.com/apikey', pricing: 'Free tier available' },
+  { id: 'xai', name: 'Grok', org: 'xAI', placeholder: 'xai-...', defaultModel: 'grok-3', keyUrl: 'https://console.x.ai/', pricing: '$5 free credit' },
+  { id: 'deepseek', name: 'DeepSeek', org: 'DeepSeek', placeholder: 'sk-...', defaultModel: 'deepseek-r1', keyUrl: 'https://platform.deepseek.com/api_keys', pricing: 'Very cheap' },
+  { id: 'ollama', name: 'Ollama', org: 'Local', placeholder: '', defaultModel: 'llama4-scout', noKey: true, keyUrl: 'https://ollama.com/download', pricing: 'Free, local' },
+  { id: 'lmstudio', name: 'LM Studio', org: 'Local', placeholder: '', defaultModel: 'local-model', noKey: true, keyUrl: 'https://lmstudio.ai/', pricing: 'Free, local' },
 ] as const
 
 type ConnectionStatus = 'idle' | 'checking' | 'ok' | 'error'
@@ -67,6 +67,9 @@ export default function Settings() {
             >
               <div className="provider-card-name">{p.name}</div>
               <div className="provider-card-org">{p.org}</div>
+              <div style={{ fontSize: 9, color: 'var(--text-tertiary)', marginTop: 4, fontFamily: 'var(--font-mono)' }}>
+                {p.pricing}
+              </div>
             </div>
           ))}
         </div>
@@ -76,9 +79,19 @@ export default function Settings() {
         <section style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
           {needsKey && (
             <div>
-              <label className="text-label" style={{ display: 'block', marginBottom: 'var(--space-2)' }}>
-                API Key
-              </label>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2)' }}>
+                <label className="text-label">API Key</label>
+                {selectedProvider && 'keyUrl' in selectedProvider && (
+                  <a
+                    href={selectedProvider.keyUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ fontSize: 'var(--text-xs)', color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: 4, textDecoration: 'none' }}
+                  >
+                    Get API key <ExternalLink size={10} />
+                  </a>
+                )}
+              </div>
               <input
                 className="input"
                 type="password"
@@ -144,6 +157,15 @@ export default function Settings() {
                 {statusDetail}
               </div>
             )}
+          </div>
+
+          {/* Auto-saved indicator */}
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)',
+          }}>
+            <Save size={10} />
+            Settings auto-saved to browser
           </div>
         </section>
       )}

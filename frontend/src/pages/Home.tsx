@@ -99,9 +99,26 @@ export default function Home() {
     setLoading(false)
   }
 
+  const needsSetup = !settings.provider
+
   return (
     <div>
       <SearchBar onSearch={handleSearch} onDemo={handleDemo} loading={loading} />
+
+      {/* Onboarding banner */}
+      {needsSetup && !result && !loading && (
+        <div style={{
+          maxWidth: 720, margin: '0 auto var(--space-6)',
+          padding: 'var(--space-4)', background: 'var(--accent-dim)',
+          border: '1px solid var(--border-accent)', borderRadius: 'var(--radius-md)',
+          display: 'flex', alignItems: 'center', gap: 'var(--space-3)',
+          animation: 'fadeUp 400ms ease 600ms both',
+        }}>
+          <div style={{ fontSize: 'var(--text-sm)', color: 'var(--accent)', flex: 1 }}>
+            <strong>Get started in 30 seconds</strong> — pick an AI provider and paste your API key in Settings. Or click <strong>Demo</strong> to see how it works.
+          </div>
+        </div>
+      )}
 
       {error && (
         <div className="error-container" style={{ maxWidth: 720, margin: '0 auto var(--space-6)', animation: 'fadeUp 300ms ease' }}>

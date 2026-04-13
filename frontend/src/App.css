@@ -403,7 +403,10 @@
 
 @media (max-width: 768px) {
   .dashboard-grid { grid-template-columns: 1fr; }
-  .stats-grid { grid-template-columns: 1fr; }
-  .search-input { padding-right: 60px; }
-  .search-btn span { display: none; }
+  .stats-grid { grid-template-columns: repeat(3, 1fr); gap: var(--space-2); }
+  .stat-value { font-size: 20px; }
+  .stat-label { font-size: 9px; }
+  .search-input { padding-right: 110px; }
+  .comp-card-name { white-space: normal; }
+  .comp-card-spec { max-width: 120px; }
 }
