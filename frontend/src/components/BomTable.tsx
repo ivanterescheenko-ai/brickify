@@ -79,14 +79,34 @@ export default function BomTable({ blocks, hasTavily }: BomTableProps) {
         <tbody>
           {allComponents.map((comp, i) => {
             const price = comp.sourcing?.found ? comp.sourcing.price_usd : comp.estimated_price_usd
+            const source = comp.sourcing?.source
+            const sourceLabel = source === 'octopart' ? 'Octopart' : source === 'tavily' ? 'Web' : ''
             return (
               <tr key={i} style={{ animationDelay: `${i * 40}ms` }}>
                 <td>
-                  <div className="bom-name">{comp.name}</div>
+                  <div className="bom-name">
+                    {comp.name}
+                    {comp.sourcing?.mpn && (
+                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', marginLeft: 6 }}>
+                        {comp.sourcing.mpn}
+                      </span>
+                    )}
+                  </div>
                   {comp.spec && <div className="bom-spec">{comp.spec}</div>}
                 </td>
                 <td className="bom-qty">{comp.quantity}</td>
-                <td className="bom-price">${price}</td>
+                <td className="bom-price">
+                  ${price}
+                  {sourceLabel && (
+                    <div style={{
+                      fontSize: 9, fontFamily: 'var(--font-mono)',
+                      color: source === 'octopart' ? 'var(--accent)' : 'var(--text-tertiary)',
+                      marginTop: 2,
+                    }}>
+                      via {sourceLabel}
+                    </div>
+                  )}
+                </td>
                 <td>
                   {comp.sourcing?.found && comp.sourcing.shop_url ? (
                     <a href={comp.sourcing.shop_url} target="_blank" rel="noopener noreferrer" className="bom-shop">

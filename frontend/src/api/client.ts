@@ -9,6 +9,8 @@ export interface BuildParams {
   api_key: string
   model: string
   base_url?: string
+  octopart_key?: string
+  tavily_key?: string
 }
 
 export interface BuildResult {
@@ -28,9 +30,13 @@ export interface BuildResult {
         why: string
         sourcing?: {
           found: boolean
+          source?: string  // "octopart" | "tavily" | "ai_estimate"
           price_usd?: number
           shop_name?: string
           shop_url?: string
+          manufacturer?: string
+          mpn?: string
+          in_stock?: boolean
           alternatives?: Array<{ name: string; price_usd: number; url: string }>
         }
       }>

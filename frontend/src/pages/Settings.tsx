@@ -16,7 +16,7 @@ const PROVIDERS = [
 type ConnectionStatus = 'idle' | 'checking' | 'ok' | 'error'
 
 export default function Settings() {
-  const { provider, apiKey, model, baseUrl, tavilyKey, setSettings } = useSettings()
+  const { provider, apiKey, model, baseUrl, octopartKey, tavilyKey, setSettings } = useSettings()
   const [status, setStatus] = useState<ConnectionStatus>('idle')
   const [statusDetail, setStatusDetail] = useState('')
 
@@ -149,21 +149,53 @@ export default function Settings() {
       )}
 
       <section style={{ marginTop: 'var(--space-10)', borderTop: '1px solid var(--border)', paddingTop: 'var(--space-6)' }}>
-        <div className="text-label" style={{ marginBottom: 'var(--space-4)' }}>
+        <div className="text-label" style={{ marginBottom: 'var(--space-6)' }}>
           Component Search (optional)
         </div>
-        <label className="text-label" style={{ display: 'block', marginBottom: 'var(--space-2)', letterSpacing: 0, textTransform: 'none' }}>
-          Tavily API Key — for price search
-        </label>
-        <input
-          className="input"
-          type="password"
-          placeholder="tvly-..."
-          value={tavilyKey}
-          onChange={(e) => setSettings({ tavilyKey: e.target.value })}
-        />
-        <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', marginTop: 'var(--space-2)' }}>
-          Free 1,000 searches/month. Without a key, AI-estimated prices are shown.
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
+          <div>
+            <label className="text-label" style={{ display: 'block', marginBottom: 'var(--space-2)', letterSpacing: 0, textTransform: 'none' }}>
+              Octopart API Key — electronic components (DigiKey, Mouser, Arrow)
+            </label>
+            <input
+              className="input"
+              type="password"
+              placeholder="octopart-api-key..."
+              value={octopartKey}
+              onChange={(e) => setSettings({ octopartKey: e.target.value })}
+            />
+            <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', marginTop: 'var(--space-2)' }}>
+              Free 100 requests/hour. Best for ICs, resistors, MCUs.{' '}
+              <a href="https://octopart.com/api/register" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)' }}>Get key</a>
+            </div>
+          </div>
+
+          <div>
+            <label className="text-label" style={{ display: 'block', marginBottom: 'var(--space-2)', letterSpacing: 0, textTransform: 'none' }}>
+              Tavily API Key — general search (frames, motors, batteries)
+            </label>
+            <input
+              className="input"
+              type="password"
+              placeholder="tvly-..."
+              value={tavilyKey}
+              onChange={(e) => setSettings({ tavilyKey: e.target.value })}
+            />
+            <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', marginTop: 'var(--space-2)' }}>
+              Free 1,000 searches/month. Covers non-electronic parts.{' '}
+              <a href="https://tavily.com" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)' }}>Get key</a>
+            </div>
+          </div>
+        </div>
+
+        <div style={{
+          marginTop: 'var(--space-4)', padding: 'var(--space-3)',
+          background: 'var(--bg-elevated)', borderRadius: 'var(--radius-sm)',
+          fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)',
+          fontFamily: 'var(--font-mono)',
+        }}>
+          Search chain: Octopart → Tavily → AI estimate. Without keys, all prices are AI estimates.
         </div>
       </section>
     </div>

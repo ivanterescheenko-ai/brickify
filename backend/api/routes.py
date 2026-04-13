@@ -19,14 +19,17 @@ PIPELINE_TIMEOUT = int(os.getenv("PIPELINE_TIMEOUT", "180"))
 
 class BuildRequest(BaseModel):
     description: str
-    budget: str = "любой"
+    budget: str = "any"
     skill_level: str = "beginner"
     country: str = "global"
-    # Конфиг модели — приходит из UI настроек
+    # LLM config
     provider: str = ""
     api_key: str = ""
     model: str = ""
     base_url: str = ""
+    # Search API keys (optional, from Settings)
+    octopart_key: str = ""
+    tavily_key: str = ""
 
 
 class TestConnectionRequest(BaseModel):
@@ -80,7 +83,11 @@ async def build_stream(req: BuildRequest):
 
                 # Шаг 2: поиск компонентов
                 yield _sse_event("phase", {"phase": "researching", "message": "Ищу компоненты и цены..."})
-                decomposition = await enrich_bom(provider, decomposition, country=req.country)
+                decomposition = await enrich_bom(
+                        provider, decomposition, country=req.country,
+                        octopart_key=req.octopart_key or os.getenv("OCTOPART_API_KEY", ""),
+                        tavily_key=req.tavily_key or os.getenv("TAVILY_API_KEY", ""),
+                    )
                 yield _sse_event("enriched", decomposition)
 
                 # Шаг 3: генерация инструкции
@@ -132,7 +139,11 @@ async def build(req: BuildRequest):
                 provider, req.description,
                 budget=req.budget, skill_level=req.skill_level, country=req.country,
             )
-            decomposition = await enrich_bom(provider, decomposition, country=req.country)
+            decomposition = await enrich_bom(
+                        provider, decomposition, country=req.country,
+                        octopart_key=req.octopart_key or os.getenv("OCTOPART_API_KEY", ""),
+                        tavily_key=req.tavily_key or os.getenv("TAVILY_API_KEY", ""),
+                    )
             guide = await generate_guide(provider, decomposition, skill_level=req.skill_level)
     except TimeoutError:
         raise HTTPException(status_code=504, detail={"error": "pipeline_timeout", "detail": f"Pipeline не завершился за {PIPELINE_TIMEOUT} секунд"})

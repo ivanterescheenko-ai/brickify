@@ -44,6 +44,8 @@ export default function Home() {
         api_key: settings.apiKey,
         model: settings.model,
         base_url: settings.baseUrl,
+        octopart_key: settings.octopartKey,
+        tavily_key: settings.tavilyKey,
       },
       {
         onPhase: (_phase: SSEPhase, message: string) => {

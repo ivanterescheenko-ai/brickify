@@ -6,6 +6,7 @@ interface Settings {
   apiKey: string
   model: string
   baseUrl: string
+  octopartKey: string
   tavilyKey: string
   setSettings: (s: Partial<Omit<Settings, 'setSettings'>>) => void
 }
@@ -17,6 +18,7 @@ export const useSettings = create<Settings>()(
       apiKey: '',
       model: '',
       baseUrl: '',
+      octopartKey: '',
       tavilyKey: '',
       setSettings: (s) => set(s),
     }),
