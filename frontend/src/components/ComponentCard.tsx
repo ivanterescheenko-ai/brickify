@@ -10,12 +10,12 @@ interface ComponentCardProps {
 }
 
 const SOURCE_CONFIG: Record<string, { label: string; color: string }> = {
-  octopart: { label: 'Octopart', color: 'var(--accent)' },
+  nexar: { label: 'Nexar', color: 'var(--accent)' },
+  mouser: { label: 'Mouser', color: '#0066cc' },
+  jlcpcb: { label: 'JLCPCB', color: '#ff6600' },
   tavily: { label: 'Web Search', color: 'var(--text-secondary)' },
   amazon: { label: 'Amazon', color: 'var(--success)' },
   aliexpress: { label: 'AliExpress', color: 'var(--warning)' },
-  lcsc: { label: 'LCSC', color: '#ff6600' },
-  szlcsc: { label: 'SZLCSC', color: '#ff6600' },
   ai_estimate: { label: 'AI Estimate', color: 'var(--text-tertiary)' },
 }
 

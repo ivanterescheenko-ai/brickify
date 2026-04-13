@@ -9,7 +9,9 @@ export interface BuildParams {
   api_key: string
   model: string
   base_url?: string
-  octopart_key?: string
+  nexar_client_id?: string
+  nexar_client_secret?: string
+  mouser_key?: string
   tavily_key?: string
 }
 

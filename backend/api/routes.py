@@ -28,7 +28,9 @@ class BuildRequest(BaseModel):
     model: str = ""
     base_url: str = ""
     # Search API keys (optional, from Settings)
-    octopart_key: str = ""
+    nexar_client_id: str = ""
+    nexar_client_secret: str = ""
+    mouser_key: str = ""
     tavily_key: str = ""
 
 
@@ -85,7 +87,9 @@ async def build_stream(req: BuildRequest):
                 yield _sse_event("phase", {"phase": "researching", "message": "Ищу компоненты и цены..."})
                 decomposition = await enrich_bom(
                         provider, decomposition, country=req.country,
-                        octopart_key=req.octopart_key or os.getenv("OCTOPART_API_KEY", ""),
+                        nexar_client_id=req.nexar_client_id or os.getenv("NEXAR_CLIENT_ID", ""),
+                        nexar_client_secret=req.nexar_client_secret or os.getenv("NEXAR_CLIENT_SECRET", ""),
+                        mouser_key=req.mouser_key or os.getenv("MOUSER_API_KEY", ""),
                         tavily_key=req.tavily_key or os.getenv("TAVILY_API_KEY", ""),
                     )
                 yield _sse_event("enriched", decomposition)
@@ -141,7 +145,9 @@ async def build(req: BuildRequest):
             )
             decomposition = await enrich_bom(
                         provider, decomposition, country=req.country,
-                        octopart_key=req.octopart_key or os.getenv("OCTOPART_API_KEY", ""),
+                        nexar_client_id=req.nexar_client_id or os.getenv("NEXAR_CLIENT_ID", ""),
+                        nexar_client_secret=req.nexar_client_secret or os.getenv("NEXAR_CLIENT_SECRET", ""),
+                        mouser_key=req.mouser_key or os.getenv("MOUSER_API_KEY", ""),
                         tavily_key=req.tavily_key or os.getenv("TAVILY_API_KEY", ""),
                     )
             guide = await generate_guide(provider, decomposition, skill_level=req.skill_level)

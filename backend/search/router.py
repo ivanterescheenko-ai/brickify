@@ -21,27 +21,47 @@ from .aliexpress import AliExpressSearchProvider
 from .amazon import AmazonSearchProvider
 from .base import BaseSearchProvider, ComponentMatch
 from .cache import SearchCache
-from .lcsc import LCSCProvider
-from .octopart import OctopartProvider
-from .szlcsc import SZLCSCProvider
+from .jlcsearch import JLCSearchProvider
+from .mouser import MouserProvider
+from .nexar import NexarProvider
 from .tavily_search import TavilySearchProvider
 
 
 class SearchRouter:
-    """Роутер поиска компонентов с fallback chain и кэшем."""
+    """
+    Роутер поиска компонентов с fallback chain и кэшем.
+
+    Источники (по приоритету для электроники):
+    1. Nexar (бывший Octopart) — GraphQL, 50+ дистрибьюторов, free 100/мес
+    2. Mouser — REST API, бесплатная регистрация
+    3. jlcsearch (tscircuit) — JLCPCB/LCSC, бесплатный, без ключа
+    4. Tavily — generic web search
+    5. Amazon — site-scoped через Tavily
+    6. AliExpress — site-scoped через Tavily
+    """
 
     def __init__(
         self,
-        octopart_key: str | None = None,
+        nexar_client_id: str | None = None,
+        nexar_client_secret: str | None = None,
+        mouser_key: str | None = None,
         tavily_key: str | None = None,
     ):
         self._providers: list[BaseSearchProvider] = []
         self._cache = SearchCache(ttl_seconds=3600, max_size=500)
 
-        # Octopart — приоритет для электроники
-        octopart = OctopartProvider(api_key=octopart_key)
-        if octopart.is_available():
-            self._providers.append(octopart)
+        # Nexar (Octopart) — GraphQL, 50+ дистрибьюторов
+        nexar = NexarProvider(client_id=nexar_client_id, client_secret=nexar_client_secret)
+        if nexar.is_available():
+            self._providers.append(nexar)
+
+        # Mouser — REST API, простой API key
+        mouser = MouserProvider(api_key=mouser_key)
+        if mouser.is_available():
+            self._providers.append(mouser)
+
+        # jlcsearch — JLCPCB/LCSC, бесплатный, без ключа, без лимитов
+        self._providers.append(JLCSearchProvider())
 
         # Tavily — generic web search
         tavily = TavilySearchProvider(api_key=tavily_key)
@@ -53,16 +73,10 @@ class SearchRouter:
         if amazon.is_available():
             self._providers.append(amazon)
 
-        # LCSC — китайский дистрибьютор, бесплатный API
-        self._providers.append(LCSCProvider())
-
         # AliExpress — через Tavily, site-scoped
         aliexpress = AliExpressSearchProvider(tavily_key=tavily_key)
         if aliexpress.is_available():
             self._providers.append(aliexpress)
-
-        # SZLCSC — внутренний китайский LCSC (ещё дешевле)
-        self._providers.append(SZLCSCProvider())
 
     @property
     def available_sources(self) -> list[str]:
@@ -81,13 +95,13 @@ class SearchRouter:
         by_name = {p.name: p for p in self._providers}
 
         if category in ("electronic",):
-            priority = ["octopart", "lcsc", "szlcsc", "tavily", "amazon", "aliexpress"]
+            priority = ["nexar", "mouser", "jlcpcb", "tavily", "amazon", "aliexpress"]
         elif category in ("mechanical", "frame"):
-            priority = ["tavily", "amazon", "aliexpress", "lcsc", "octopart", "szlcsc"]
+            priority = ["tavily", "amazon", "aliexpress", "jlcpcb", "nexar", "mouser"]
         elif category in ("wiring", "fastener", "consumable"):
-            priority = ["aliexpress", "lcsc", "amazon", "tavily", "szlcsc", "octopart"]
+            priority = ["aliexpress", "jlcpcb", "amazon", "tavily", "mouser", "nexar"]
         else:
-            priority = ["octopart", "tavily", "amazon", "lcsc", "aliexpress", "szlcsc"]
+            priority = ["nexar", "mouser", "jlcpcb", "tavily", "amazon", "aliexpress"]
 
         ordered = [by_name[n] for n in priority if n in by_name]
         # Add any remaining providers not in priority list
@@ -146,11 +160,15 @@ class SearchRouter:
 
 
 def create_search_router(
-    octopart_key: str | None = None,
+    nexar_client_id: str | None = None,
+    nexar_client_secret: str | None = None,
+    mouser_key: str | None = None,
     tavily_key: str | None = None,
 ) -> SearchRouter:
     """Фабрика для создания роутера из .env или переданных ключей."""
     return SearchRouter(
-        octopart_key=octopart_key or os.getenv("OCTOPART_API_KEY", ""),
+        nexar_client_id=nexar_client_id or os.getenv("NEXAR_CLIENT_ID", ""),
+        nexar_client_secret=nexar_client_secret or os.getenv("NEXAR_CLIENT_SECRET", ""),
+        mouser_key=mouser_key or os.getenv("MOUSER_API_KEY", ""),
         tavily_key=tavily_key or os.getenv("TAVILY_API_KEY", ""),
     )

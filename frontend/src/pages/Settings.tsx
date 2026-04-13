@@ -16,7 +16,7 @@ const PROVIDERS = [
 type ConnectionStatus = 'idle' | 'checking' | 'ok' | 'error'
 
 export default function Settings() {
-  const { provider, apiKey, model, baseUrl, octopartKey, tavilyKey, setSettings } = useSettings()
+  const { provider, apiKey, model, baseUrl, nexarClientId, nexarClientSecret, mouserKey, tavilyKey, setSettings } = useSettings()
   const [status, setStatus] = useState<ConnectionStatus>('idle')
   const [statusDetail, setStatusDetail] = useState('')
 
@@ -172,30 +172,59 @@ export default function Settings() {
 
       <section style={{ marginTop: 'var(--space-10)', borderTop: '1px solid var(--border)', paddingTop: 'var(--space-6)' }}>
         <div className="text-label" style={{ marginBottom: 'var(--space-6)' }}>
-          Component Search (optional)
+          Component Search (optional — JLCPCB works without keys)
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
+          {/* Nexar (Octopart) */}
           <div>
             <label className="text-label" style={{ display: 'block', marginBottom: 'var(--space-2)', letterSpacing: 0, textTransform: 'none' }}>
-              Octopart API Key — electronic components (DigiKey, Mouser, Arrow)
+              Nexar (Octopart) — 50+ distributors (DigiKey, Mouser, Arrow, Farnell)
+            </label>
+            <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+              <input
+                className="input"
+                type="password"
+                placeholder="Client ID"
+                value={nexarClientId}
+                onChange={(e) => setSettings({ nexarClientId: e.target.value })}
+              />
+              <input
+                className="input"
+                type="password"
+                placeholder="Client Secret"
+                value={nexarClientSecret}
+                onChange={(e) => setSettings({ nexarClientSecret: e.target.value })}
+              />
+            </div>
+            <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', marginTop: 'var(--space-2)' }}>
+              Free 100 parts/month. Best for electronic components.{' '}
+              <a href="https://portal.nexar.com" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)' }}>Get credentials</a>
+            </div>
+          </div>
+
+          {/* Mouser */}
+          <div>
+            <label className="text-label" style={{ display: 'block', marginBottom: 'var(--space-2)', letterSpacing: 0, textTransform: 'none' }}>
+              Mouser API Key — direct Mouser search
             </label>
             <input
               className="input"
               type="password"
-              placeholder="octopart-api-key..."
-              value={octopartKey}
-              onChange={(e) => setSettings({ octopartKey: e.target.value })}
+              placeholder="mouser-api-key..."
+              value={mouserKey}
+              onChange={(e) => setSettings({ mouserKey: e.target.value })}
             />
             <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', marginTop: 'var(--space-2)' }}>
-              Free 100 requests/hour. Best for ICs, resistors, MCUs.{' '}
-              <a href="https://octopart.com/api/register" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)' }}>Get key</a>
+              Free registration.{' '}
+              <a href="https://www.mouser.com/api-hub/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)' }}>Get key</a>
             </div>
           </div>
 
+          {/* Tavily */}
           <div>
             <label className="text-label" style={{ display: 'block', marginBottom: 'var(--space-2)', letterSpacing: 0, textTransform: 'none' }}>
-              Tavily API Key — general search (frames, motors, batteries)
+              Tavily API Key — web search (frames, motors, batteries)
             </label>
             <input
               className="input"
@@ -205,7 +234,7 @@ export default function Settings() {
               onChange={(e) => setSettings({ tavilyKey: e.target.value })}
             />
             <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', marginTop: 'var(--space-2)' }}>
-              Free 1,000 searches/month. Covers non-electronic parts.{' '}
+              Free 1,000 searches/month.{' '}
               <a href="https://tavily.com" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)' }}>Get key</a>
             </div>
           </div>
@@ -217,7 +246,7 @@ export default function Settings() {
           fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)',
           fontFamily: 'var(--font-mono)',
         }}>
-          Search chain: Octopart → Tavily → AI estimate. Without keys, all prices are AI estimates.
+          Search chain: Nexar → Mouser → JLCPCB (free) → Tavily → Amazon → AliExpress → AI estimate
         </div>
       </section>
     </div>

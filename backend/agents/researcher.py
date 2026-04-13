@@ -118,7 +118,7 @@ async def _enrich_component(
     )
 
     # Структурированные источники — используем напрямую
-    if match.found and match.source in ("octopart", "lcsc", "szlcsc"):
+    if match.found and match.source in ("nexar", "mouser", "jlcpcb"):
         sourcing = _match_to_sourcing(match)
     # Raw search results — LLM извлекает цену
     elif match.found and match.source in ("tavily", "amazon", "aliexpress"):
@@ -136,24 +136,30 @@ async def enrich_bom(
     provider: BaseLLMProvider,
     decomposition: dict,
     country: str = "global",
-    octopart_key: str | None = None,
+    nexar_client_id: str | None = None,
+    nexar_client_secret: str | None = None,
+    mouser_key: str | None = None,
     tavily_key: str | None = None,
 ) -> dict:
     """
     Обогащает BOM реальными ценами через multi-source search.
 
-    Источники (по приоритету):
-    1. Octopart — электронные компоненты (структурированные данные)
-    2. Tavily — generic web search (LLM извлекает цену)
-    3. Amazon — site-scoped search (LLM извлекает цену)
-    4. AliExpress — site-scoped search (LLM извлекает цену)
-    5. AI estimate — fallback из decomposer
+    Источники (по приоритету для электроники):
+    1. Nexar (Octopart) — GraphQL, 50+ дистрибьюторов
+    2. Mouser — REST API
+    3. jlcsearch — JLCPCB/LCSC, бесплатный
+    4. Tavily — generic web search
+    5. Amazon — site-scoped
+    6. AliExpress — site-scoped
+    7. AI estimate — fallback
 
-    Компоненты внутри блока ищутся параллельно (до 5 одновременно).
+    Компоненты внутри блока ищутся параллельно.
     Результаты кэшируются (in-memory, TTL 1 час).
     """
     router = create_search_router(
-        octopart_key=octopart_key,
+        nexar_client_id=nexar_client_id,
+        nexar_client_secret=nexar_client_secret,
+        mouser_key=mouser_key,
         tavily_key=tavily_key,
     )
 
