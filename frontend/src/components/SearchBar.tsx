@@ -3,6 +3,7 @@ import { Search, Loader2, Cpu } from 'lucide-react'
 
 interface SearchBarProps {
   onSearch: (query: string) => void
+  onDemo?: () => void
   loading: boolean
 }
 
@@ -13,7 +14,7 @@ const EXAMPLES = [
   { label: 'Smart lamp' },
 ]
 
-export default function SearchBar({ onSearch, loading }: SearchBarProps) {
+export default function SearchBar({ onSearch, onDemo, loading }: SearchBarProps) {
   const [query, setQuery] = useState('')
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -109,6 +110,24 @@ export default function SearchBar({ onSearch, loading }: SearchBarProps) {
             {ex.label}
           </button>
         ))}
+        {onDemo && (
+          <button
+            className="btn btn-ghost"
+            style={{
+              fontSize: 13,
+              fontFamily: 'var(--font-mono)',
+              border: '1px solid var(--border-accent)',
+              borderRadius: 'var(--radius-full)',
+              padding: '0 14px',
+              color: 'var(--accent)',
+              animation: `fadeUp 300ms ease ${300 + EXAMPLES.length * 80}ms both`,
+            }}
+            onClick={onDemo}
+            disabled={loading}
+          >
+            Demo
+          </button>
+        )}
       </div>
     </div>
   )

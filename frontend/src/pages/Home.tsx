@@ -2,6 +2,7 @@ import { useState, useRef, useCallback } from 'react'
 import { AlertTriangle, RotateCcw } from 'lucide-react'
 import { useSettings } from '../store/settings'
 import { buildDeviceStream, type BuildResult, type SSEPhase } from '../api/client'
+import { MOCK_RESULT } from '../api/mockData'
 import SearchBar from '../components/SearchBar'
 import StatCards from '../components/StatCards'
 import ComponentTree from '../components/ComponentTree'
@@ -90,9 +91,17 @@ export default function Home() {
     ? currentBlocks.some((b) => b.components.some((c) => c.sourcing?.found))
     : false
 
+  const handleDemo = () => {
+    setResult(MOCK_RESULT)
+    setDecomposition(MOCK_RESULT.decomposition)
+    setGuide(MOCK_RESULT.guide)
+    setError(null)
+    setLoading(false)
+  }
+
   return (
     <div>
-      <SearchBar onSearch={handleSearch} loading={loading} />
+      <SearchBar onSearch={handleSearch} onDemo={handleDemo} loading={loading} />
 
       {error && (
         <div className="error-container" style={{ maxWidth: 720, margin: '0 auto var(--space-6)', animation: 'fadeUp 300ms ease' }}>
@@ -137,7 +146,12 @@ export default function Home() {
 
           <div className="dashboard-grid">
             <ComponentTree blocks={currentBlocks} />
-            <BomTable blocks={currentBlocks} hasTavily={hasTavily} />
+            <BomTable
+              blocks={currentBlocks}
+              hasTavily={hasTavily}
+              deviceName={result?.decomposition.device}
+              guide={currentGuide}
+            />
           </div>
 
           {loading && !currentGuide && (
