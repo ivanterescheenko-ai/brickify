@@ -12,10 +12,10 @@
 [![Docker](https://img.shields.io/badge/docker-compose-2496ED.svg)](https://docker.com)
 [![Self-Hosted](https://img.shields.io/badge/self--hosted-BYOK-green.svg)](#bring-your-own-key)
 
-<!-- Add screenshots: see docs/screenshots/ -->
+<!-- Replace with actual screenshots from docs/screenshots/ -->
 <!-- ![Brickify Demo](docs/screenshots/home.png) -->
 
-[Features](#features) · [Quick Start](#quick-start) · [Supported AI Models](#supported-ai-models) · [How It Works](#how-it-works) · [Contributing](CONTRIBUTING.md)
+[Features](#features) · [Screenshots](#screenshots) · [Quick Start](#quick-start) · [Supported AI Models](#supported-ai-models) · [How It Works](#how-it-works) · [Contributing](CONTRIBUTING.md)
 
 </div>
 
@@ -26,11 +26,126 @@
 **Describe any device** — "FPV racing drone", "Arduino weather station", "3D printer" — and get:
 
 - **Component tree** — device broken down into functional blocks with specific parts
-- **Bill of Materials** — every component with specs, quantity, estimated price
+- **Bill of Materials** — every component with specs, quantity, estimated price, CSV export
 - **Where to buy** — real shop links and prices (via [Tavily API](https://tavily.com), optional)
 - **Assembly guide** — step-by-step instructions written for beginners, not engineers
 - **7 AI providers** — Claude, GPT, Gemini, Grok, DeepSeek, Ollama, LM Studio
-- **Dark theme** — industrial-technical design that looks like an engineer's notebook
+- **SSE streaming** — live progress updates as AI works through each stage
+- **Dark theme** — industrial-technical design with blueprint grid background
+
+---
+
+## Screenshots
+
+### 1. Home — Search
+
+Dark theme with blueprint grid. Type what you want to build, or pick a quick example.
+
+<!-- ![Home](docs/screenshots/01-home.png) -->
+```
+┌─ Brickify ──────────────────────────────── ☀ Settings ─┐
+│                                                          │
+│              ┌─ AI HARDWARE DECOMPOSER ─┐                │
+│                                                          │
+│            What are we building?                         │
+│                                                          │
+│   Describe a device — AI breaks it into components...    │
+│                                                          │
+│   ┌──────────────────────────────── 🔍 Build ┐          │
+│   │ e.g. FPV racing drone 5 inch              │          │
+│   └───────────────────────────────────────────┘          │
+│                                                          │
+│   Try: [FPV drone] [Arduino thermostat] [3D printer]     │
+└──────────────────────────────────────────────────────────┘
+```
+
+### 2. Settings — Choose Provider
+
+Pick any of 7 AI providers. Local options (Ollama, LM Studio) need no API key.
+
+<!-- ![Settings](docs/screenshots/02-settings.png) -->
+```
+┌─ Settings ───────────────────────────────────────────────┐
+│                                                           │
+│  CHOOSE AI MODEL                                          │
+│  ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐            │
+│  │ Claude │ │ GPT-4.1│ │ Gemini │ │  Grok  │            │
+│  └────────┘ └────────┘ └────────┘ └────────┘            │
+│  ┌────────┐ ┌────────┐ ┌────────┐                        │
+│  │DeepSeek│ │ Ollama │ │LMStudio│                        │
+│  └────────┘ └────────┘ └────────┘                        │
+│                                                           │
+│  API KEY   [sk-ant-..............................]        │
+│  MODEL     [claude-sonnet-4-20250514]                    │
+│                                                           │
+│  [Test Connection]  ● Connected                           │
+│                                                           │
+│  ─────────────────────────────────────                    │
+│  COMPONENT SEARCH (OPTIONAL)                              │
+│  Tavily API Key  [tvly-...]                              │
+└───────────────────────────────────────────────────────────┘
+```
+
+### 3. Results — Component Tree + BOM
+
+AI decomposes the device into blocks. Each block expands to show components with prices.
+
+<!-- ![Results](docs/screenshots/03-results.png) -->
+```
+┌─ Stats ──────────────────────────────────────────────────┐
+│  [14 Components]    [$280 Budget]    [intermediate]       │
+├──────────────┬───────────────────────────────────────────┤
+│ DEVICE       │  BILL OF MATERIALS              [CSV][⎘] │
+│ STRUCTURE    │                                           │
+│              │  Component    Qty  Price  Where           │
+│ ▼ Frame      │  Carbon 5"    1   $28    [GetFPV →]      │
+│   · carbon   │  Motor 2306   4   $68    [RDQ →]         │
+│ ▼ Power      │  ESC 4-in-1   1   $42    [GetFPV →]      │
+│   · motors   │  LiPo 4S      1   $35    [Amazon →]      │
+│   · ESC      │  ...                                      │
+│ ▼ Control    │  ─────────────────────────────            │
+│   · FC       │  Total        14  $280                    │
+│   · receiver │                                           │
+└──────────────┴───────────────────────────────────────────┘
+```
+
+### 4. Assembly Guide
+
+Step-by-step instructions with tips, tools needed, and time estimates.
+
+<!-- ![Guide](docs/screenshots/04-guide.png) -->
+```
+┌─ Assembly Guide ─────────────────── ~3h │ 8 tools ──────┐
+│                                                          │
+│  ⚠ Safety: disconnect battery before soldering           │
+│                                                          │
+│  ① Assemble the frame                                    │
+│  │  Attach the bottom plate to the arms using M3 bolts.  │
+│  │  ⚡ Tip: tighten in X pattern, not clockwise          │
+│  │  🔧 Phillips #2, hex 2.5mm          ~10 min           │
+│  │                                                       │
+│  ② Mount the motors                                      │
+│  │  Press-fit motors into arm mounts. CW on front-right. │
+│  │  ⚡ Tip: check rotation direction before securing      │
+│  │  🔧 hex 2mm, threadlocker            ~15 min          │
+│  │                                                       │
+│  ③ Solder ESC                                            │
+│     ...                                                  │
+└──────────────────────────────────────────────────────────┘
+```
+
+### 5. Error Handling
+
+Clear error messages with retry option. Guides user to fix the issue.
+
+<!-- ![Error](docs/screenshots/05-error.png) -->
+```
+┌─────────────────────────────────────────────────────────┐
+│  ⚠ Something went wrong                                 │
+│    Connection refused — is the backend running?          │
+│    [↻ Retry]  [Dismiss]                                  │
+└─────────────────────────────────────────────────────────┘
+```
 
 ### Bring Your Own Key
 
