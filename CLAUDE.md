@@ -15,11 +15,7 @@ Free, MIT license. Users bring their own LLM API key (Claude, GPT, Gemini, Grok,
 - **Python 3.12**, Node 20 LTS — версии зафиксированы для Docker
 - **Нет mypy strict в MVP** — type hints пишем, но strict mode не блокирует
 
-## Project status
-
-> **Код ещё не создан.** Существуют только документы планирования. Структура ниже — планируемая.
-
-## Repo structure (planned)
+## Repo structure
 
 ```
 brickify/
@@ -35,35 +31,17 @@ brickify/
 │   │   └── components/ # ComponentTree, BomTable, LegoGuide, StatCards
 │   ├── Dockerfile
 │   └── package.json
-├── HARDWAREBUILDER_PLAN.md    # full technical implementation plan
-├── HARDWAREBUILDER_DESIGN.md  # full design system (fonts, colors, components)
 ├── docker-compose.yml
 ├── .env.example
 └── README.md
 ```
 
-## Read these first
+## Architecture
 
-Before writing any code, read both documents in this order:
+Backend follows a layered pattern: `providers/` (LLM adapters) → `agents/` (business logic) → `api/` (HTTP transport).
+Frontend is a React SPA with Zustand for state management.
 
-1. `HARDWAREBUILDER_PLAN.md` — all code, prompts, API routes, folder structure
-2. `HARDWAREBUILDER_DESIGN.md` — design system, CSS variables, component styles
-
-Everything is already decided. Don't invent new structure — follow the plan.
-
-## Build order
-
-**Start here, go in this exact order:**
-
-1. Create folder structure (backend + frontend skeleton)
-2. `backend/providers/` — base.py → all adapters → factory.py
-3. `backend/agents/` — decomposer.py → writer.py → researcher.py
-4. `backend/api/` — main.py → routes.py
-5. `frontend/` — Settings page → Home page → components
-6. `docker-compose.yml` + both Dockerfiles
-7. `README.md` with install instructions
-
-After each block: run a quick test before moving to the next.
+Follow existing patterns when adding new features.
 
 ## Key decisions (don't change these)
 

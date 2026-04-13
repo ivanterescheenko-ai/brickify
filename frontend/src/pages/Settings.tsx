@@ -9,8 +9,8 @@ const PROVIDERS = [
   { id: 'google', name: 'Gemini', org: 'Google', placeholder: 'AIzaSy...', defaultModel: 'gemini-2.5-flash' },
   { id: 'xai', name: 'Grok', org: 'xAI', placeholder: 'xai-...', defaultModel: 'grok-3' },
   { id: 'deepseek', name: 'DeepSeek', org: 'DeepSeek', placeholder: 'sk-...', defaultModel: 'deepseek-r1' },
-  { id: 'ollama', name: 'Ollama', org: 'Локально', placeholder: '', defaultModel: 'llama4-scout', noKey: true },
-  { id: 'lmstudio', name: 'LM Studio', org: 'Локально', placeholder: '', defaultModel: 'local-model', noKey: true },
+  { id: 'ollama', name: 'Ollama', org: 'Local', placeholder: '', defaultModel: 'llama4-scout', noKey: true },
+  { id: 'lmstudio', name: 'LM Studio', org: 'Local', placeholder: '', defaultModel: 'local-model', noKey: true },
 ] as const
 
 type ConnectionStatus = 'idle' | 'checking' | 'ok' | 'error'
@@ -41,7 +41,7 @@ export default function Settings() {
     const result = await testConnection({ provider, api_key: apiKey, model, base_url: baseUrl })
     if (result.ok) {
       setStatus('ok')
-      setStatusDetail(result.model ? `Модель: ${result.model}` : '')
+      setStatusDetail(result.model ? `Model: ${result.model}` : '')
     } else {
       setStatus('error')
       setStatusDetail(result.error || 'Неизвестная ошибка')
@@ -51,12 +51,12 @@ export default function Settings() {
   return (
     <div style={{ maxWidth: 700 }}>
       <h1 className="text-display" style={{ fontSize: 'var(--text-2xl)', marginBottom: 'var(--space-8)' }}>
-        Настройки
+        Settings
       </h1>
 
       <section style={{ marginBottom: 'var(--space-8)' }}>
         <div className="text-label" style={{ marginBottom: 'var(--space-4)' }}>
-          Выбери AI-модель
+          Choose AI Model
         </div>
         <div className="providers-grid">
           {PROVIDERS.map((p) => (
@@ -77,7 +77,7 @@ export default function Settings() {
           {needsKey && (
             <div>
               <label className="text-label" style={{ display: 'block', marginBottom: 'var(--space-2)' }}>
-                API ключ
+                API Key
               </label>
               <input
                 className="input"
@@ -91,7 +91,7 @@ export default function Settings() {
 
           <div>
             <label className="text-label" style={{ display: 'block', marginBottom: 'var(--space-2)' }}>
-              Модель
+              Model
             </label>
             <input
               className="input"
@@ -119,16 +119,16 @@ export default function Settings() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
               <button className="btn btn-primary" onClick={handleCheck} disabled={status === 'checking'}>
                 {status === 'checking' && <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} />}
-                Проверить подключение
+                Test Connection
               </button>
               {status === 'ok' && (
                 <span style={{ color: 'var(--success)', display: 'flex', alignItems: 'center', gap: 4, fontSize: 13 }}>
-                  <CheckCircle size={14} /> Работает
+                  <CheckCircle size={14} /> Connected
                 </span>
               )}
               {status === 'error' && (
                 <span style={{ color: 'var(--danger)', display: 'flex', alignItems: 'center', gap: 4, fontSize: 13 }}>
-                  <AlertTriangle size={14} /> Ошибка
+                  <AlertTriangle size={14} /> Error
                 </span>
               )}
             </div>
@@ -150,10 +150,10 @@ export default function Settings() {
 
       <section style={{ marginTop: 'var(--space-10)', borderTop: '1px solid var(--border)', paddingTop: 'var(--space-6)' }}>
         <div className="text-label" style={{ marginBottom: 'var(--space-4)' }}>
-          Поиск компонентов (опционально)
+          Component Search (optional)
         </div>
         <label className="text-label" style={{ display: 'block', marginBottom: 'var(--space-2)', letterSpacing: 0, textTransform: 'none' }}>
-          Tavily API ключ — для поиска цен
+          Tavily API Key — для поиска цен
         </label>
         <input
           className="input"

@@ -7,10 +7,10 @@ interface SearchBarProps {
 }
 
 const EXAMPLES = [
-  { label: 'FPV дрон', icon: '~' },
-  { label: 'Arduino термостат', icon: '~' },
-  { label: '3D принтер', icon: '~' },
-  { label: 'Умная лампа', icon: '~' },
+  { label: 'FPV drone' },
+  { label: 'Arduino thermostat' },
+  { label: '3D printer' },
+  { label: 'Smart lamp' },
 ]
 
 export default function SearchBar({ onSearch, loading }: SearchBarProps) {
@@ -47,14 +47,14 @@ export default function SearchBar({ onSearch, loading }: SearchBarProps) {
         marginBottom: 'var(--space-4)',
         lineHeight: 1.1,
       }}>
-        Что собираем?
+        What are we building?
       </div>
       <p style={{
         color: 'var(--text-secondary)', fontSize: 16,
         marginBottom: 'var(--space-10)',
         maxWidth: 480, marginInline: 'auto',
       }}>
-        Опиши устройство — AI разберёт на компоненты, найдёт где купить и напишет инструкцию сборки
+        Describe a device — AI breaks it into components, finds where to buy, and writes assembly instructions
       </p>
 
       <form onSubmit={handleSubmit} style={{
@@ -64,7 +64,7 @@ export default function SearchBar({ onSearch, loading }: SearchBarProps) {
         <div className="search-container">
           <input
             className="search-input"
-            placeholder="Например: FPV дрон для гонок 5 дюймов"
+            placeholder="e.g. FPV racing drone 5 inch"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             disabled={loading}
@@ -75,7 +75,7 @@ export default function SearchBar({ onSearch, loading }: SearchBarProps) {
               ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
               : <Search size={16} />
             }
-            <span>Собрать</span>
+            <span>Build</span>
           </button>
         </div>
       </form>
@@ -89,7 +89,7 @@ export default function SearchBar({ onSearch, loading }: SearchBarProps) {
           fontFamily: 'var(--font-mono)', alignSelf: 'center',
           marginRight: 4,
         }}>
-          Попробуй:
+          Try:
         </span>
         {EXAMPLES.map((ex, i) => (
           <button

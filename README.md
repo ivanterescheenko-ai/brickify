@@ -12,8 +12,8 @@
 [![Docker](https://img.shields.io/badge/docker-compose-2496ED.svg)](https://docker.com)
 [![Self-Hosted](https://img.shields.io/badge/self--hosted-BYOK-green.svg)](#bring-your-own-key)
 
-<!-- TODO: Replace with actual demo GIF -->
-<!-- ![Brickify Demo](docs/demo.gif) -->
+<!-- Add screenshots: see docs/screenshots/ -->
+<!-- ![Brickify Demo](docs/screenshots/home.png) -->
 
 [Features](#features) · [Quick Start](#quick-start) · [Supported AI Models](#supported-ai-models) · [How It Works](#how-it-works) · [Contributing](CONTRIBUTING.md)
 
@@ -50,7 +50,7 @@ cp .env.example .env
 docker compose up --build
 ```
 
-Open **http://localhost:3000**
+Open the frontend URL shown in the terminal (default: port 3000).
 
 ### Without Docker
 
@@ -61,7 +61,7 @@ pip install -r requirements.txt
 cd ..
 cp .env.example .env   # edit with your API key
 cd backend
-uvicorn api.main:app --reload --port 8000
+uvicorn api.main:app --reload
 
 # Frontend (separate terminal)
 cd frontend
@@ -69,7 +69,7 @@ npm install
 npm run dev
 ```
 
-Backend: http://localhost:8000 · Frontend: http://localhost:5173
+Open the URLs shown in each terminal.
 
 ---
 
@@ -131,7 +131,7 @@ Free tier: 1,000 searches/month. Without Tavily, everything still works — you 
 |---|---|
 | Backend | Python 3.12, FastAPI, async |
 | Frontend | React 19, TypeScript, Vite, Zustand |
-| LLM | anthropic, openai, google-generativeai SDKs |
+| LLM | anthropic, openai, google-genai SDKs |
 | Search | Tavily API (optional) |
 | Deploy | Docker Compose |
 
@@ -156,7 +156,7 @@ API_KEY=sk-ant-xxx          # leave empty for ollama/lmstudio
 MODEL=                      # optional, uses provider default
 BASE_URL=                   # only for ollama/lmstudio
 TAVILY_API_KEY=             # optional, for real price search
-ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
+ALLOWED_ORIGINS=                    # comma-separated, defaults to local dev ports
 PIPELINE_TIMEOUT=180        # max seconds for full pipeline
 ```
 
