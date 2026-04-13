@@ -44,7 +44,7 @@ export default function Settings() {
       setStatusDetail(result.model ? `Model: ${result.model}` : '')
     } else {
       setStatus('error')
-      setStatusDetail(result.error || 'Неизвестная ошибка')
+      setStatusDetail(result.error || 'Unknown error')
     }
   }
 
@@ -153,7 +153,7 @@ export default function Settings() {
           Component Search (optional)
         </div>
         <label className="text-label" style={{ display: 'block', marginBottom: 'var(--space-2)', letterSpacing: 0, textTransform: 'none' }}>
-          Tavily API Key — для поиска цен
+          Tavily API Key — for price search
         </label>
         <input
           className="input"
@@ -163,7 +163,7 @@ export default function Settings() {
           onChange={(e) => setSettings({ tavilyKey: e.target.value })}
         />
         <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', marginTop: 'var(--space-2)' }}>
-          Бесплатно 1000 запросов/месяц. Без ключа будут показаны оценочные цены.
+          Free 1,000 searches/month. Without a key, AI-estimated prices are shown.
         </div>
       </section>
     </div>

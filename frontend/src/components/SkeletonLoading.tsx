@@ -13,7 +13,7 @@ export default function SkeletonLoading({ phase }: SkeletonLoadingProps) {
         fontFamily: 'var(--font-mono)',
       }}>
         <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
-        {phase || 'Обработка...'}
+        {phase || 'Processing...'}
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>

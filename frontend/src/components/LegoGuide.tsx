@@ -10,14 +10,14 @@ export default function LegoGuide({ guide }: LegoGuideProps) {
     <div style={{ marginTop: 'var(--space-8)' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-6)' }}>
         <h2 className="text-display" style={{ fontSize: 'var(--text-xl)' }}>
-          Инструкция сборки
+          Assembly Guide
         </h2>
         <div style={{ display: 'flex', gap: 'var(--space-4)', fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>
           <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             <Clock size={14} /> ~{guide.total_time_hours}ч
           </span>
           <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <Wrench size={14} /> {guide.tools_list?.length || 0} инструментов
+            <Wrench size={14} /> {guide.tools_list?.length || 0} tools
           </span>
         </div>
       </div>
@@ -61,7 +61,7 @@ export default function LegoGuide({ guide }: LegoGuideProps) {
                 </div>
               )}
 
-              <div className="step-time">~{step.time_minutes} мин</div>
+              <div className="step-time">~{step.time_minutes} min</div>
             </div>
           </div>
         ))}

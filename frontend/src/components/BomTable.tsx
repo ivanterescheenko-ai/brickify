@@ -14,17 +14,17 @@ export default function BomTable({ blocks, hasTavily }: BomTableProps) {
   }, 0)
 
   const copyBom = () => {
-    const lines = ['| Компонент | Кол-во | Цена |', '|---|---|---|']
+    const lines = ['| Component | Qty | Price |', '|---|---|---|']
     allComponents.forEach((c) => {
       const price = c.sourcing?.found ? c.sourcing.price_usd : c.estimated_price_usd
       lines.push(`| ${c.name} | ${c.quantity} | $${price} |`)
     })
-    lines.push(`| **Итого** | | **$${totalPrice.toFixed(0)}** |`)
+    lines.push(`| **Total** | | **$${totalPrice.toFixed(0)}** |`)
     navigator.clipboard.writeText(lines.join('\n'))
   }
 
   const downloadCsv = () => {
-    const rows = [['Компонент', 'Спецификация', 'Кол-во', 'Цена USD', 'Магазин', 'Ссылка']]
+    const rows = [['Component', 'Spec', 'Qty', 'Price USD', 'Shop', 'URL']]
     allComponents.forEach((c) => {
       const price = c.sourcing?.found ? c.sourcing.price_usd : c.estimated_price_usd
       rows.push([
@@ -32,7 +32,7 @@ export default function BomTable({ blocks, hasTavily }: BomTableProps) {
         c.sourcing?.shop_name || '', c.sourcing?.shop_url || '',
       ])
     })
-    rows.push(['ИТОГО', '', String(allComponents.reduce((s, c) => s + c.quantity, 0)), String(totalPrice.toFixed(2)), '', ''])
+    rows.push(['TOTAL', '', String(allComponents.reduce((s, c) => s + c.quantity, 0)), String(totalPrice.toFixed(2)), '', ''])
     const csv = rows.map((r) => r.map((v) => `"${v}"`).join(',')).join('\n')
     const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
@@ -53,7 +53,7 @@ export default function BomTable({ blocks, hasTavily }: BomTableProps) {
             <Download size={12} /> CSV
           </button>
           <button className="btn btn-ghost" onClick={copyBom} style={{ gap: 4 }}>
-            <Copy size={12} /> Скопировать
+            <Copy size={12} /> Copy
           </button>
         </div>
       </div>
@@ -63,17 +63,17 @@ export default function BomTable({ blocks, hasTavily }: BomTableProps) {
           padding: 'var(--space-2) var(--space-4)', background: 'var(--warning-dim)',
           fontSize: 'var(--text-xs)', color: 'var(--warning)',
         }}>
-          Цены — оценка AI. Подключи Tavily API для актуальных цен.
+          Prices are AI estimates. Add Tavily API key for real prices.
         </div>
       )}
 
       <table className="bom-table">
         <thead>
           <tr>
-            <th>Компонент</th>
-            <th style={{ textAlign: 'center' }}>Кол-во</th>
-            <th style={{ textAlign: 'right' }}>Цена</th>
-            <th>Где купить</th>
+            <th>Component</th>
+            <th style={{ textAlign: 'center' }}>Qty</th>
+            <th style={{ textAlign: 'right' }}>Price</th>
+            <th>Where to buy</th>
           </tr>
         </thead>
         <tbody>
@@ -100,7 +100,7 @@ export default function BomTable({ blocks, hasTavily }: BomTableProps) {
             )
           })}
           <tr className="bom-total">
-            <td>Итого</td>
+            <td>Total</td>
             <td className="bom-qty">{allComponents.reduce((s, c) => s + c.quantity, 0)}</td>
             <td className="bom-price">${totalPrice.toFixed(0)}</td>
             <td></td>

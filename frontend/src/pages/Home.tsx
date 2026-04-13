@@ -22,7 +22,7 @@ export default function Home() {
 
   const handleSearch = useCallback((query: string) => {
     if (!settings.provider) {
-      setError('Сначала выбери AI-провайдер в настройках')
+      setError('Choose an AI provider in Settings first')
       return
     }
 
@@ -34,7 +34,7 @@ export default function Home() {
     setResult(null)
     setDecomposition(null)
     setGuide(null)
-    setPhase('Подключаюсь...')
+    setPhase('Connecting...')
     setLastQuery(query)
 
     abortRef.current = buildDeviceStream(
@@ -96,7 +96,7 @@ export default function Home() {
         <div className="error-container" style={{ maxWidth: 720, margin: '0 auto var(--space-6)', animation: 'fadeUp 300ms ease' }}>
           <AlertTriangle size={16} style={{ flexShrink: 0, marginTop: 1 }} />
           <div style={{ flex: 1 }}>
-            <div style={{ fontWeight: 500, marginBottom: 4 }}>Что-то пошло не так</div>
+            <div style={{ fontWeight: 500, marginBottom: 4 }}>Something went wrong</div>
             <div style={{ opacity: 0.8 }}>{error}</div>
             <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
               <button
@@ -104,14 +104,14 @@ export default function Home() {
                 style={{ color: 'var(--danger)', border: '1px solid var(--danger)', borderRadius: 'var(--radius-sm)', padding: '0 12px' }}
                 onClick={handleRetry}
               >
-                <RotateCcw size={12} /> Попробовать снова
+                <RotateCcw size={12} /> Retry
               </button>
               <button
                 className="btn btn-ghost"
                 style={{ color: 'var(--text-tertiary)' }}
                 onClick={() => setError(null)}
               >
-                Закрыть
+                Dismiss
               </button>
             </div>
           </div>

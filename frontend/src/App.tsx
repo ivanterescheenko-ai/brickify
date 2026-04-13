@@ -33,7 +33,7 @@ export default function App() {
             onClick={() => setPage(page === 'settings' ? 'home' : 'settings')}
           >
             <SettingsIcon size={16} />
-            Настройки
+            Settings
           </button>
         </div>
       </header>

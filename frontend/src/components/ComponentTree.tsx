@@ -21,7 +21,7 @@ export default function ComponentTree({ blocks }: ComponentTreeProps) {
   return (
     <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
       <div style={{ padding: 'var(--space-4)', borderBottom: '1px solid var(--border)' }}>
-        <div className="text-label">Структура устройства</div>
+        <div className="text-label">Device Structure</div>
       </div>
       <div className="tree-root">
         {blocks.map((block, i) => (
